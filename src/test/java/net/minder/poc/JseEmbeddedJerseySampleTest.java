@@ -20,6 +20,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -34,6 +35,7 @@ import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsNot.not;
 
 public class JseEmbeddedJerseySampleTest {
 
@@ -122,7 +124,7 @@ public class JseEmbeddedJerseySampleTest {
     System.out.println( output );
 
     JseEmbeddedJerseySample.Input input = new JseEmbeddedJerseySample.Input();
-    input.name = "test-command";
+    input.name = "test-name";
     input.args = new String[]{ "test-arg1", "test-arg2" };
     String status = client
         .target( uri )
@@ -130,6 +132,19 @@ public class JseEmbeddedJerseySampleTest {
         .request( MediaType.TEXT_PLAIN )
         .post( Entity.entity( input, MediaType.APPLICATION_JSON_TYPE ), String.class );
     assertThat( status, is( "ok" ) );
+
+    input = new JseEmbeddedJerseySample.Input();
+    input.name = "invalid-test-command";
+    input.args = new String[]{ "test-arg1", "test-arg2" };
+    try {
+      client
+          .target( uri )
+          .path( "exec" )
+          .request( MediaType.TEXT_PLAIN )
+          .post( Entity.entity( input, MediaType.APPLICATION_JSON_TYPE ), String.class );
+    } catch( InternalServerErrorException e ) {
+      // Expected.
+    }
 
     client.close();
   }

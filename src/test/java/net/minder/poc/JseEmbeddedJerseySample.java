@@ -38,6 +38,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 public class JseEmbeddedJerseySample {
 
   private static ExecutorService threads;
@@ -61,6 +64,7 @@ public class JseEmbeddedJerseySample {
       for( int i=0; i< input.args.length; i++ ) {
         System.out.println( "  [" + i + "]=" + input.args[ i ] );
       }
+      assertThat( input.name, is( "test-name" ) );
       return "ok";
     }
 
