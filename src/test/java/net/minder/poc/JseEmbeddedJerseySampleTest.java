@@ -52,7 +52,7 @@ public class JseEmbeddedJerseySampleTest {
     pb.main( JseEmbeddedJerseySample.class );
     pb.args( Integer.toString( uri.getPort() ) );
     proc = pb.start();
-    PortUtils.waitForOpenPort( uri );
+    PortUtils.awaitOpenPort( uri );
 
     Client client = ClientBuilder.newClient();
     String entity = client

@@ -46,7 +46,9 @@ public class SimpleJaxRsServer {
 
   public SimpleJaxRsServer providers( Class... providerClasses ) {
     for( Class c: providerClasses ) {
-      config.register( c );
+      if( c != null ) {
+        config.register( c );
+      }
     }
     return this;
   }

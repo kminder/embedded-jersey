@@ -31,6 +31,7 @@ public class JavaProcessBuilder {
   private static String NULL_PROP_VALUE = new String("NULL");
 
   private String jvm = null;
+  private ArrayList<String> opts = null;
   private ArrayList<String> xargs = null;
   private String main = null;
   private ArrayList<String> args = null;
@@ -59,7 +60,7 @@ public class JavaProcessBuilder {
     return jvm;
   }
 
-  public String getJvm() {
+  public String getJvmPathArg() {
     if( jvm != null ) {
       return jvm;
     } else {
@@ -77,10 +78,7 @@ public class JavaProcessBuilder {
     return this;
   }
 
-  public String getMainClass() {
-    if( main == null ) {
-      throw new IllegalArgumentException( "main==null" );
-    }
+  public String getMainClassName() {
     return main;
   }
 
@@ -96,7 +94,11 @@ public class JavaProcessBuilder {
       if( this.args == null ) {
         this.args = new ArrayList();
       }
-      this.args.addAll( args );
+      for( String arg: args ) {
+        if( arg != null ) {
+          this.args.add( arg );
+        }
+      }
     }
     return this;
   }
@@ -123,9 +125,9 @@ public class JavaProcessBuilder {
 
   public JavaProcessBuilder classPath( List<String> classPath ) {
     if( classPath != null ) {
-      String sep = System.getenv( "path.separator" );
-      StringBuilder str = new StringBuilder();
-      boolean first = true;
+      String sep = System.getProperty( "path.separator" );
+      StringBuilder str = new StringBuilder( this.classPath == null ? "" : this.classPath );
+      boolean first = ( str.length() == 0 );
       for( String classSrc : classPath ) {
         if( first ) {
           first = false;
@@ -142,7 +144,7 @@ public class JavaProcessBuilder {
 
   public List<String> getClassPathArgs() {
     ArrayList<String> args = new ArrayList();
-    if( classPath != null ) {
+    if( classPath != null && !classPath.isEmpty() ) {
       args.add( "-cp" );
       args.add( classPath );
     }
@@ -189,17 +191,45 @@ public class JavaProcessBuilder {
     return this;
   }
 
-  public List<String> getSysProps() {
+  public List<String> getPropArgs() {
     ArrayList<String> args = new ArrayList();
     if( sysProps != null ) {
       for( Map.Entry<Object,Object> entry: sysProps.entrySet() ) {
         Object name = entry.getKey();
         Object value = entry.getValue();
-        if( value != null ) {
+        if( value == null || value == NULL_PROP_VALUE ) {
           args.add( "-D" + name );
         } else {
           args.add( "-D" + name + "=" + value );
         }
+      }
+    }
+    return args;
+  }
+
+  public JavaProcessBuilder opt( String name ) {
+    return opt( name, null );
+  }
+
+  public JavaProcessBuilder opt( String name, String value ) {
+    if( name != null ) {
+      if( opts == null ) {
+        opts  = new ArrayList();
+      }
+      if( value == null ) {
+        opts.add( name );
+      } else {
+        opts.add( name + "=" + value );
+      }
+    }
+    return this;
+  }
+
+  public List<String> getJvmArgs() {
+    ArrayList<String> args = new ArrayList();
+    if( opts != null ) {
+      for( String opt: opts ) {
+        args.add( "-" + opt );
       }
     }
     return args;
@@ -223,7 +253,7 @@ public class JavaProcessBuilder {
     return this;
   }
 
-  public List<String> getJvmArgs() {
+  public List<String> getExtArgs() {
     ArrayList<String> args = new ArrayList();
     if( xargs != null ) {
       for( String xarg: xargs ) {
@@ -238,18 +268,28 @@ public class JavaProcessBuilder {
     return this;
   }
 
-  public Process start() throws IOException {
-    ProcessBuilder pb = new ProcessBuilder();
+  public boolean getInheritIO() {
+    return Boolean.TRUE.equals( inheritIo );
+  }
+
+  public List<String> getCmdArgs() {
     ArrayList<String> args = new ArrayList();
-    args.add( getJvm() );
+    args.add( getJvmPathArg() );
     args.addAll( getDbgArgs() );
     args.addAll( getJvmArgs() );
-    args.addAll( getSysProps() );
+    args.addAll( getExtArgs() );
+    args.addAll( getPropArgs() );
     args.addAll( getClassPathArgs() );
-    args.add( getMainClass() );
+    args.add( getMainClassName() );
     args.addAll( getMainArgs() );
-    pb.command( args );
-    if( Boolean.TRUE.equals( inheritIo ) ) { pb.inheritIO(); }
+    return args;
+  }
+
+  public Process start() throws IOException {
+    ProcessBuilder pb = new ProcessBuilder();
+    if( getMainClassName() == null ) { throw new IllegalArgumentException( "No main class name provided." ); }
+    if( getInheritIO() ) { pb.inheritIO(); }
+    pb.command( getCmdArgs() );
     return pb.start();
   }
 

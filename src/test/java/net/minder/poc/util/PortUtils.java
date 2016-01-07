@@ -39,7 +39,7 @@ public class PortUtils {
     return port;
   }
 
-  public static void waitForOpenPort( URI uri ) {
+  public static void awaitOpenPort( URI uri ) {
     while( true ) {
       try {
         Socket s = new Socket( uri.getHost(), uri.getPort() );
