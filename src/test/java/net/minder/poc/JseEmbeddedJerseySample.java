@@ -33,7 +33,7 @@ import static org.hamcrest.Matchers.is;
 @Path( "/" )
 public class JseEmbeddedJerseySample {
 
-  private static EmbeddedJerseyServer server;
+  private static SimpleJaxRsServer server;
 
   public static class Input {
     public Input() {}
@@ -85,7 +85,7 @@ public class JseEmbeddedJerseySample {
     int port = args.length == 0 ? 9999 : Integer.parseInt( args[0] );
     URI uri = UriBuilder.fromUri( "http://0.0.0.0/" ).port( port ).build();
 
-    server = new EmbeddedJerseyServer();
+    server = new SimpleJaxRsServer();
     server.uri( uri );
     server.resources( JseEmbeddedJerseySample.class );
     server.start();

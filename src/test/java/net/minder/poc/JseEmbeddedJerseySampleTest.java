@@ -31,8 +31,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
@@ -58,20 +56,6 @@ public class JseEmbeddedJerseySampleTest {
     return port;
   }
 
-  private static String getJvm() {
-    String jvm = "java";
-    String sep = System.getProperty( "file.separator" );
-    String home = System.getProperty( "java.home" );
-    if( home != null && !home.isEmpty() ) {
-      jvm = home + sep + "bin" + sep + "java";
-    }
-    return jvm;
-  }
-
-  private static String getClassPath() {
-    return System.getProperty("java.class.path");
-  }
-
   private static void waitForServerPort() {
     while( true ) {
       try {
@@ -81,7 +65,7 @@ public class JseEmbeddedJerseySampleTest {
       } catch( IOException e ) {
         // Ignore and wait.
         try {
-          Thread.sleep( 10 );
+          Thread.sleep( 25 );
         } catch( InterruptedException e1 ) {
           // Ignore.
         }
@@ -92,14 +76,12 @@ public class JseEmbeddedJerseySampleTest {
   @BeforeClass
   public static void setUpSuite() throws IOException, URISyntaxException {
     uri = new URI( "http", null, "localhost", getFreePort(), "/", null, null );
-    ProcessBuilder pb = new ProcessBuilder();
-    List<String> args = new ArrayList();
-    args.add( getJvm() );
-    args.add( "-cp" );
-    args.add( getClassPath() );
-    args.add( JseEmbeddedJerseySample.class.getName() );
-    args.add( Integer.toString( uri.getPort() ) );
-    pb.command( args );
+
+    JavaProcessBuilder pb = new JavaProcessBuilder();
+    pb.inheritClassPath();
+    pb.inheritIO();
+    pb.main( JseEmbeddedJerseySample.class );
+    pb.args( Integer.toString( uri.getPort() ) );
     proc = pb.start();
     waitForServerPort();
 

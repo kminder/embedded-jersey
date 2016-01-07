@@ -26,7 +26,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
-public class EmbeddedJerseyServer {
+public class SimpleJaxRsServer {
 
   private URI uri;
   private ResourceConfig config;
@@ -34,24 +34,24 @@ public class EmbeddedJerseyServer {
   private HttpServer server;
   private Semaphore barrier = new Semaphore( 1 );
 
-  public EmbeddedJerseyServer() {
+  public SimpleJaxRsServer() {
     config = new ResourceConfig();
     providers( AssertionErrorExceptionMapper.class );
   }
 
-  public EmbeddedJerseyServer uri( URI uri ) {
+  public SimpleJaxRsServer uri( URI uri ) {
     this.uri = uri;
     return this;
   }
 
-  public EmbeddedJerseyServer providers( Class... providerClasses ) {
+  public SimpleJaxRsServer providers( Class... providerClasses ) {
     for( Class c: providerClasses ) {
       config.register( c );
     }
     return this;
   }
 
-  public EmbeddedJerseyServer resources( Class... resourceClasses ) {
+  public SimpleJaxRsServer resources( Class... resourceClasses ) {
     config.registerClasses( resourceClasses );
     return this;
   }
