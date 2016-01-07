@@ -16,11 +16,12 @@ package net.minder.poc; /**
  * limitations under the License.
  */
 
+import com.jayway.restassured.RestAssured;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -33,9 +34,9 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsNot.not;
 
 public class JseEmbeddedJerseySampleTest {
 
@@ -113,7 +114,7 @@ public class JseEmbeddedJerseySampleTest {
   }
 
   @Test
-  public void test() throws InterruptedException, IOException {
+  public void testWithJerseyClient() throws IOException {
     Client client = ClientBuilder.newClient();
 
     JseEmbeddedJerseySample.Output output = client
@@ -142,11 +143,65 @@ public class JseEmbeddedJerseySampleTest {
           .path( "exec" )
           .request( MediaType.TEXT_PLAIN )
           .post( Entity.entity( input, MediaType.APPLICATION_JSON_TYPE ), String.class );
-    } catch( InternalServerErrorException e ) {
+    } catch( ServerErrorException e ) {
       // Expected.
     }
 
     client.close();
+  }
+
+  @Test
+  public void testWithRestAssured() throws IOException {
+    RestAssured.baseURI = uri.toString();
+    JseEmbeddedJerseySample.Input input = new JseEmbeddedJerseySample.Input();
+
+    input.name = "invalid-test-name";
+    input.args = new String[]{ "test-arg1", "test-arg2" };
+    RestAssured.given()
+        .contentType( "application/json" )
+        .body( input )
+        .when()
+        .post( "/exec" )
+        .then()
+        .statusCode( 517 );
+
+    input.name = "invalid-test-name";
+    input.args = new String[]{ "test-arg1", "test-arg2" };
+    String s = RestAssured.given()
+        //.log().all()
+        .contentType( "application/json" )
+        .body( input )
+        .when()
+        .post( "/exec" )
+        .then()
+        //.log().all()
+        .statusCode( 517 )
+        .extract()
+        .response().asString();
+    assertThat( s, containsString( "but: was \"invalid-test-name\"" ) );
+
+    input.name = "test-name";
+    input.args = new String[]{ "test-arg1", "test-arg2" };
+    RestAssured.given()
+        .contentType( "application/json" )
+        .body( input )
+        .when()
+        .post( "/exec" )
+        .then()
+        .contentType( "text/plain" )
+        .body( is( "ok" ) )
+        .statusCode( 200 );
+
+    JseEmbeddedJerseySample.Output output = RestAssured.given()
+        .body( input )
+        .when()
+        .get( "/query" )
+        .then()
+        .contentType( "application/json" )
+        .statusCode( 200 )
+        .extract()
+        .as( JseEmbeddedJerseySample.Output.class );
+    assertThat( output.id, is( "test-id" ) );
   }
 
   @AfterClass

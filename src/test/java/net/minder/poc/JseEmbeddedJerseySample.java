@@ -17,35 +17,22 @@
  */
 package net.minder.poc;
 
-import com.sun.net.httpserver.HttpServer;
-import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
-import org.glassfish.jersey.server.ResourceConfig;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 public class JseEmbeddedJerseySample {
 
-  private static ExecutorService threads;
-  private static HttpServer server;
-  private static Semaphore barrier = new Semaphore( 1 );
+  private static EmbeddedJerseyServer server;
 
   public static class Input {
     public Input() {}
@@ -105,7 +92,7 @@ public class JseEmbeddedJerseySample {
 
     @GET
     public String exit() {
-      barrier.release();
+      server.stop();
       return "ok";
     }
 
@@ -115,18 +102,13 @@ public class JseEmbeddedJerseySample {
 
     int port = args.length == 0 ? 9999 : Integer.parseInt( args[0] );
     URI uri = UriBuilder.fromUri( "http://0.0.0.0/" ).port( port ).build();
-    ResourceConfig config = new ResourceConfig( Exec.class, Query.class, Ping.class, Exit.class );
 
-    barrier.acquire();
-    threads = Executors.newCachedThreadPool();
-    server = JdkHttpServerFactory.createHttpServer( uri, config, false );
-    server.setExecutor( threads );
+    server = new EmbeddedJerseyServer();
+    server.uri( uri );
+    server.resources( Exec.class, Query.class, Ping.class, Exit.class );
     server.start();
-
-    barrier.acquire();
-
-    server.stop( 0 );
-    threads.shutdown();
+    server.awaitStop();
+    server.destroy();
 
   }
 
