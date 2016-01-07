@@ -17,6 +17,8 @@
  */
 package net.minder.poc;
 
+import net.minder.poc.util.SimpleJaxRsServer;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;

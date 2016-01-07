@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.minder.poc;
+package net.minder.poc.util;
 
 import java.io.IOException;
 import java.util.ArrayList;

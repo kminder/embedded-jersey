@@ -18,6 +18,8 @@
 package net.minder.poc;
 
 import com.jayway.restassured.RestAssured;
+import net.minder.poc.util.JavaProcessBuilder;
+import net.minder.poc.util.PortUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
