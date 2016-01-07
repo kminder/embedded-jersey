@@ -44,7 +44,7 @@ public class AssertionErrorExceptionMapper implements ExceptionMapper<AssertionE
     }
   }
 
-  //@Override
+  @Override
   public Response toResponse( AssertionError e ) {
     javax.ws.rs.core.Response.ResponseBuilder builder = javax.ws.rs.core.Response.serverError();
     return builder.status( ASSERTION_ERROR_STATUS ).type( MediaType.TEXT_PLAIN_TYPE ).entity( formatException( e ) ).build();

@@ -122,7 +122,7 @@ public class JseEmbeddedJerseySampleTest {
         .path( "query" )
         .request( MediaType.APPLICATION_JSON_TYPE )
         .get( JseEmbeddedJerseySample.Output.class );
-    System.out.println( output );
+    assertThat( output.id, is( "test-id" ) );
 
     JseEmbeddedJerseySample.Input input = new JseEmbeddedJerseySample.Input();
     input.name = "test-name";

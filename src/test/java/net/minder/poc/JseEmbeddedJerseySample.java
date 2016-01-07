@@ -30,6 +30,7 @@ import java.util.concurrent.BrokenBarrierException;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+@Path( "/" )
 public class JseEmbeddedJerseySample {
 
   private static EmbeddedJerseyServer server;
@@ -37,24 +38,7 @@ public class JseEmbeddedJerseySample {
   public static class Input {
     public Input() {}
     public String name = "test-name";
-    public String[] args = new String[]{ "one", "two" };
-  }
-
-  @Path( "/exec" )
-  public static class Exec {
-
-    @POST
-    @Consumes( "application/json" )
-    @Produces( "text/plain" )
-    public String exec( Input input ) {
-      System.out.println( input.name );
-      for( int i=0; i< input.args.length; i++ ) {
-        System.out.println( "  [" + i + "]=" + input.args[ i ] );
-      }
-      assertThat( input.name, is( "test-name" ) );
-      return "ok";
-    }
-
+    public String[] args = new String[]{ "test-arg-one", "test-arg-two" };
   }
 
   public static class Output {
@@ -64,38 +48,36 @@ public class JseEmbeddedJerseySample {
     public String toString() { return "id=" + id + ", desc=" + desc; }
   }
 
+  @Path( "/exec" )
+  @POST
+  @Consumes( "application/json" )
+  @Produces( "text/plain" )
+  public String exec( Input input ) {
+    assertThat( input.name, is( "test-name" ) );
+    return "ok";
+  }
+
   @Path( "/query" )
-  public static class Query {
-
-    @GET
-    @Produces( "application/json" )
-    public Output status() {
-      Output output = new Output();
-      return output;
-    }
-
+  @GET
+  @Produces( "application/json" )
+  public Output status() {
+    Output output = new Output();
+    return output;
   }
 
   @Path( "/ping" )
-  public static class Ping {
-
-    @GET
-    @Produces( "text/plain" )
-    public String ping() {
-      return "hello";
-    }
-
+  @GET
+  @Produces( "text/plain" )
+  public String ping() {
+    return "hello";
   }
 
   @Path( "/exit" )
-  public static class Exit {
-
-    @GET
-    public String exit() {
-      server.stop();
-      return "ok";
-    }
-
+  @GET
+  @Produces( "text/plain" )
+  public String exit() {
+    server.stop();
+    return "ok";
   }
 
   public static void main( String[] args ) throws IOException, BrokenBarrierException, InterruptedException {
@@ -105,7 +87,7 @@ public class JseEmbeddedJerseySample {
 
     server = new EmbeddedJerseyServer();
     server.uri( uri );
-    server.resources( Exec.class, Query.class, Ping.class, Exit.class );
+    server.resources( JseEmbeddedJerseySample.class );
     server.start();
     server.awaitStop();
     server.destroy();
