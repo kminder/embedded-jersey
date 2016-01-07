@@ -30,6 +30,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
 public class JavaProcessBuilderTest {
@@ -319,6 +320,16 @@ public class JavaProcessBuilderTest {
     jpb.args( "test-arg" );
     jpb.opt( "test-opt-name", "test-opt-value" );
     assertThat( jpb.getCmdArgs(), contains( "test-jvm", "-test-opt-name=test-opt-value", "-Xtest-xarg-name=test-xarg-value", "-Dtest-prop-name=test-prop-value", "-cp", "test-jar", "test-main", "test-arg" ) );
+  }
+
+  @Test
+  public void testBuild() {
+    JavaProcessBuilder jpb;
+
+    jpb = new JavaProcessBuilder();
+    jpb.jvm( "test-jvm" );
+    jpb.main( "test-main" );
+    assertThat( jpb.build(), notNullValue() );
   }
 
 }

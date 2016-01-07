@@ -285,12 +285,16 @@ public class JavaProcessBuilder {
     return args;
   }
 
-  public Process start() throws IOException {
+  public ProcessBuilder build() {
     ProcessBuilder pb = new ProcessBuilder();
     if( getMainClassName() == null ) { throw new IllegalArgumentException( "No main class name provided." ); }
     if( getInheritIO() ) { pb.inheritIO(); }
     pb.command( getCmdArgs() );
-    return pb.start();
+    return pb;
+  }
+
+  public Process start() throws IOException {
+    return build().start();
   }
 
 }
