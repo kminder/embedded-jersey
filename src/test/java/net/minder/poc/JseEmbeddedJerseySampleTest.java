@@ -28,8 +28,6 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -42,41 +40,9 @@ public class JseEmbeddedJerseySampleTest {
   private static URI uri = null;
   private static Process proc = null;
 
-  private static int getFreePort() throws IOException {
-    int port = 9999;
-    try {
-      ServerSocket socket = new ServerSocket( port );
-      socket.close();
-    } catch( IOException e ) {
-      if( port > 1024 ) {
-        port--;
-      } else {
-        throw e;
-      }
-    }
-    return port;
-  }
-
-  private static void waitForServerPort() {
-    while( true ) {
-      try {
-        Socket s = new Socket( uri.getHost(), uri.getPort() );
-        s.close();
-        break;
-      } catch( IOException e ) {
-        // Ignore and wait.
-        try {
-          Thread.sleep( 25 );
-        } catch( InterruptedException e1 ) {
-          // Ignore.
-        }
-      }
-    }
-  }
-
   @BeforeClass
   public static void setUpSuite() throws IOException, URISyntaxException {
-    uri = new URI( "http", null, "localhost", getFreePort(), "/", null, null );
+    uri = new URI( "http", null, "localhost", PortUtils.getFreePort(), "/", null, null );
 
     JavaProcessBuilder pb = new JavaProcessBuilder();
     pb.inheritClassPath();
@@ -84,7 +50,7 @@ public class JseEmbeddedJerseySampleTest {
     pb.main( JseEmbeddedJerseySample.class );
     pb.args( Integer.toString( uri.getPort() ) );
     proc = pb.start();
-    waitForServerPort();
+    PortUtils.waitForOpenPort( uri );
 
     Client client = ClientBuilder.newClient();
     String entity = client
