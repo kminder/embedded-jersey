@@ -25,15 +25,16 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.concurrent.BrokenBarrierException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 @Path( "/" )
-public class JseEmbeddedJerseySample {
+public class SimpleRestServerSample {
 
-  private static SimpleJaxRsServer server;
+  private static SimpleRestServer server;
 
   public static class Input {
     public Input() {}
@@ -80,18 +81,13 @@ public class JseEmbeddedJerseySample {
     return "ok";
   }
 
-  public static void main( String[] args ) throws IOException, BrokenBarrierException, InterruptedException {
+  public static void main( String[] args ) throws IOException, BrokenBarrierException, InterruptedException, URISyntaxException {
 
     int port = args.length == 0 ? 9999 : Integer.parseInt( args[0] );
     URI uri = UriBuilder.fromUri( "http://0.0.0.0/" ).port( port ).build();
 
-    server = new SimpleJaxRsServer();
-    server.uri( uri );
-    server.resources( JseEmbeddedJerseySample.class );
-    server.start();
-    server.awaitStop();
-    server.destroy();
-
+    server = new SimpleRestServer();
+    server.uri( uri ).resources( SimpleRestServerSample.class ).start().awaitStop().destroy();
   }
 
 }

@@ -1,13 +1,9 @@
 Simple JAX-RS REST Server
 =========================
 
-This simple wrapper makes starting a JSE embedded JAX-RS REST server as simple as this:
+This simple wrapper makes embedding a JAX-RS REST server as simple as this:
  
  ```java
     server = new SimpleRestServer();
-    server.uri( uri );
-    server.resources( SampleJaxRsResource.class );
-    server.start();
-    server.awaitStop();
-    server.destroy(); 
+    server.uri( "http://0.0.0.0:8888/" ).resources( SampleResource.class ).start().awaitStop().destroy();
  

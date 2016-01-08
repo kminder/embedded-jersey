@@ -37,7 +37,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class JseEmbeddedJerseySampleTest {
+public class SimpleRestServerSampleTest {
 
   private static URI uri = null;
   private static Process proc = null;
@@ -49,7 +49,7 @@ public class JseEmbeddedJerseySampleTest {
     JavaProcessPreBuilder pb = new JavaProcessPreBuilder();
     pb.inheritClassPath();
     pb.inheritIO();
-    pb.main( JseEmbeddedJerseySample.class );
+    pb.main( SimpleRestServerSample.class );
     pb.args( Integer.toString( uri.getPort() ) );
     proc = pb.start();
     PortUtils.awaitOpenPort( uri );
@@ -68,14 +68,14 @@ public class JseEmbeddedJerseySampleTest {
   public void testWithJerseyClient() throws IOException {
     Client client = ClientBuilder.newClient();
 
-    JseEmbeddedJerseySample.Output output = client
+    SimpleRestServerSample.Output output = client
         .target( uri )
         .path( "query" )
         .request( MediaType.APPLICATION_JSON_TYPE )
-        .get( JseEmbeddedJerseySample.Output.class );
+        .get( SimpleRestServerSample.Output.class );
     assertThat( output.id, is( "test-id" ) );
 
-    JseEmbeddedJerseySample.Input input = new JseEmbeddedJerseySample.Input();
+    SimpleRestServerSample.Input input = new SimpleRestServerSample.Input();
     input.name = "test-name";
     input.args = new String[]{ "test-arg1", "test-arg2" };
     String status = client
@@ -85,7 +85,7 @@ public class JseEmbeddedJerseySampleTest {
         .post( Entity.entity( input, MediaType.APPLICATION_JSON_TYPE ), String.class );
     assertThat( status, is( "ok" ) );
 
-    input = new JseEmbeddedJerseySample.Input();
+    input = new SimpleRestServerSample.Input();
     input.name = "invalid-test-command";
     input.args = new String[]{ "test-arg1", "test-arg2" };
     try {
@@ -104,7 +104,7 @@ public class JseEmbeddedJerseySampleTest {
   @Test
   public void testWithRestAssured() throws IOException {
     RestAssured.baseURI = uri.toString();
-    JseEmbeddedJerseySample.Input input = new JseEmbeddedJerseySample.Input();
+    SimpleRestServerSample.Input input = new SimpleRestServerSample.Input();
 
     input.name = "invalid-test-name";
     input.args = new String[]{ "test-arg1", "test-arg2" };
@@ -143,7 +143,7 @@ public class JseEmbeddedJerseySampleTest {
         .body( is( "ok" ) )
         .statusCode( 200 );
 
-    JseEmbeddedJerseySample.Output output = RestAssured.given()
+    SimpleRestServerSample.Output output = RestAssured.given()
         .body( input )
         .when()
         .get( "/query" )
@@ -151,7 +151,7 @@ public class JseEmbeddedJerseySampleTest {
         .contentType( "application/json" )
         .statusCode( 200 )
         .extract()
-        .as( JseEmbeddedJerseySample.Output.class );
+        .as( SimpleRestServerSample.Output.class );
     assertThat( output.id, is( "test-id" ) );
   }
 

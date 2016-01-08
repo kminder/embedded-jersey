@@ -22,11 +22,12 @@ import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
-public class SimpleJaxRsServer {
+public class SimpleRestServer {
 
   private URI uri;
   private ResourceConfig config;
@@ -34,17 +35,21 @@ public class SimpleJaxRsServer {
   private HttpServer server;
   private Semaphore barrier = new Semaphore( 1 );
 
-  public SimpleJaxRsServer() {
+  public SimpleRestServer() {
     config = new ResourceConfig();
     providers( AssertionErrorExceptionMapper.class );
   }
 
-  public SimpleJaxRsServer uri( URI uri ) {
+  public SimpleRestServer uri( URI uri ) {
     this.uri = uri;
     return this;
   }
 
-  public SimpleJaxRsServer providers( Class... providerClasses ) {
+  public SimpleRestServer uri( String uri ) throws URISyntaxException {
+    return uri( new URI( uri ) );
+  }
+
+  public SimpleRestServer providers( Class... providerClasses ) {
     for( Class c: providerClasses ) {
       if( c != null ) {
         config.register( c );
@@ -53,25 +58,28 @@ public class SimpleJaxRsServer {
     return this;
   }
 
-  public SimpleJaxRsServer resources( Class... resourceClasses ) {
+  public SimpleRestServer resources( Class... resourceClasses ) {
     config.registerClasses( resourceClasses );
     return this;
   }
 
-  public void start() throws InterruptedException {
+  public SimpleRestServer start() throws InterruptedException {
     threads = Executors.newCachedThreadPool();
     server = JdkHttpServerFactory.createHttpServer( uri, config, false );
     server.setExecutor( threads );
     barrier.acquire();
     server.start();
+    return this;
   }
 
-  public void awaitStop() throws InterruptedException {
+  public SimpleRestServer awaitStop() throws InterruptedException {
     barrier.acquire();
+    return this;
   }
 
-  public void stop() {
+  public SimpleRestServer stop() {
     barrier.release();
+    return this;
   }
 
   public void destroy() {
