@@ -1,7 +1,7 @@
 Simple JAX-RS REST Server
 =========================
 
-This simple wrapper makes embedding a JAX-RS REST server as simple as this:
+This simple wrapper that makes embedding a JAX-RS REST server as simple as this:
  
  ```java
     server = new SimpleRestServer();
