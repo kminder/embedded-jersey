@@ -18,7 +18,7 @@
 package net.minder.poc;
 
 import com.jayway.restassured.RestAssured;
-import net.minder.poc.util.JavaProcessBuilder;
+import net.minder.poc.util.JavaProcessPreBuilder;
 import net.minder.poc.util.PortUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -46,7 +46,7 @@ public class JseEmbeddedJerseySampleTest {
   public static void setUpSuite() throws IOException, URISyntaxException {
     uri = new URI( "http", null, "localhost", PortUtils.getFreePort(), "/", null, null );
 
-    JavaProcessBuilder pb = new JavaProcessBuilder();
+    JavaProcessPreBuilder pb = new JavaProcessPreBuilder();
     pb.inheritClassPath();
     pb.inheritIO();
     pb.main( JseEmbeddedJerseySample.class );

@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-public class JavaProcessBuilder {
+public class JavaProcessPreBuilder {
 
   private static List<String> EMPTY_LIST = Collections.unmodifiableList( Collections.EMPTY_LIST );
   private static String NULL_PROP_VALUE = new String("NULL");
@@ -45,7 +45,7 @@ public class JavaProcessBuilder {
     return System.getProperty( "java.class.path" );
   }
 
-  public JavaProcessBuilder jvm( String jvmFileName ) {
+  public JavaProcessPreBuilder jvm( String jvmFileName ) {
     jvm = jvmFileName;
     return this;
   }
@@ -68,12 +68,12 @@ public class JavaProcessBuilder {
     }
   }
 
-  public JavaProcessBuilder main( Class mainClass ) {
+  public JavaProcessPreBuilder main( Class mainClass ) {
     main( mainClass.getName() );
     return this;
   }
 
-  public JavaProcessBuilder main( String mainClassName ) {
+  public JavaProcessPreBuilder main( String mainClassName ) {
     main = mainClassName;
     return this;
   }
@@ -82,14 +82,14 @@ public class JavaProcessBuilder {
     return main;
   }
 
-  public JavaProcessBuilder args( String... values ) {
+  public JavaProcessPreBuilder args( String... values ) {
     if( values != null ) {
       args( Arrays.asList( values ) );
     }
     return this;
   }
 
-  public JavaProcessBuilder args( List<String> args ) {
+  public JavaProcessPreBuilder args( List<String> args ) {
     if( args != null ) {
       if( this.args == null ) {
         this.args = new ArrayList();
@@ -111,19 +111,19 @@ public class JavaProcessBuilder {
     }
   }
 
-  public JavaProcessBuilder inheritClassPath() {
+  public JavaProcessPreBuilder inheritClassPath() {
     classPath = getCurrentClassPath();
     return this;
   }
 
-  public JavaProcessBuilder classPath( String... classPath ) {
+  public JavaProcessPreBuilder classPath( String... classPath ) {
     if( classPath != null ) {
       classPath( Arrays.asList( classPath ) );
     }
     return this;
   }
 
-  public JavaProcessBuilder classPath( List<String> classPath ) {
+  public JavaProcessPreBuilder classPath( List<String> classPath ) {
     if( classPath != null ) {
       String sep = System.getProperty( "path.separator" );
       StringBuilder str = new StringBuilder( this.classPath == null ? "" : this.classPath );
@@ -151,15 +151,15 @@ public class JavaProcessBuilder {
     return args;
   }
 
-  public JavaProcessBuilder debug() {
+  public JavaProcessPreBuilder debug() {
     return debug( 5005, false );
   }
 
-  public JavaProcessBuilder debug( int port ) {
+  public JavaProcessPreBuilder debug( int port ) {
     return debug( port, false );
   }
 
-  public JavaProcessBuilder debug( int port, boolean suspend ) {
+  public JavaProcessPreBuilder debug( int port, boolean suspend ) {
     debugPort = port;
     debugWait = suspend;
     return this;
@@ -174,11 +174,11 @@ public class JavaProcessBuilder {
     return args;
   }
 
-  public JavaProcessBuilder prop( String name ) {
+  public JavaProcessPreBuilder prop( String name ) {
     return prop( name, null );
   }
 
-  public JavaProcessBuilder prop( String name, String value ) {
+  public JavaProcessPreBuilder prop( String name, String value ) {
     if( name != null ) {
       if( sysProps == null ) {
         sysProps = new Properties();
@@ -207,11 +207,11 @@ public class JavaProcessBuilder {
     return args;
   }
 
-  public JavaProcessBuilder opt( String name ) {
+  public JavaProcessPreBuilder opt( String name ) {
     return opt( name, null );
   }
 
-  public JavaProcessBuilder opt( String name, String value ) {
+  public JavaProcessPreBuilder opt( String name, String value ) {
     if( name != null ) {
       if( opts == null ) {
         opts  = new ArrayList();
@@ -235,11 +235,11 @@ public class JavaProcessBuilder {
     return args;
   }
 
-  public JavaProcessBuilder xarg( String name ) {
+  public JavaProcessPreBuilder xarg( String name ) {
     return xarg( name, null );
   }
 
-  public JavaProcessBuilder xarg( String name, String value ) {
+  public JavaProcessPreBuilder xarg( String name, String value ) {
     if( name != null ) {
       if( xargs == null ) {
         xargs  = new ArrayList();
@@ -263,7 +263,7 @@ public class JavaProcessBuilder {
     return args;
   }
 
-  public JavaProcessBuilder inheritIO() {
+  public JavaProcessPreBuilder inheritIO() {
     inheritIo = Boolean.TRUE;
     return this;
   }
@@ -273,6 +273,7 @@ public class JavaProcessBuilder {
   }
 
   public List<String> getCmdArgs() {
+    if( getMainClassName() == null ) { throw new IllegalArgumentException( "No main class name provided." ); }
     ArrayList<String> args = new ArrayList();
     args.add( getJvmPathArg() );
     args.addAll( getDbgArgs() );
@@ -285,16 +286,15 @@ public class JavaProcessBuilder {
     return args;
   }
 
-  public ProcessBuilder build() {
+  public ProcessBuilder prepare() {
     ProcessBuilder pb = new ProcessBuilder();
-    if( getMainClassName() == null ) { throw new IllegalArgumentException( "No main class name provided." ); }
     if( getInheritIO() ) { pb.inheritIO(); }
     pb.command( getCmdArgs() );
     return pb;
   }
 
   public Process start() throws IOException {
-    return build().start();
+    return prepare().start();
   }
 
 }

@@ -33,27 +33,29 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
-public class JavaProcessBuilderTest {
+public class JavaProcessPreBuilderTest {
 
   @Test
   public void testJvmPath() {
-    JavaProcessBuilder jpb;
+    JavaProcessPreBuilder jpb;
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
+    jpb.main( "test-main" );
     assertThat( jpb.getJvmPathArg(), endsWith( "java" ) );
     assertThat( jpb.getCmdArgs().get( 0 ), endsWith( "java" ) );
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.jvm( "test-jvm" );
+    jpb.main( "test-main" );
     assertThat( jpb.getJvmPathArg(), is( "test-jvm" ) );
     assertThat( jpb.getCmdArgs().get( 0 ), is( "test-jvm" ) );
   }
 
   @Test
   public void testMain() throws IOException {
-    JavaProcessBuilder jpb;
+    JavaProcessPreBuilder jpb;
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     assertThat( jpb.getMainClassName(), is( nullValue() ) );
     try {
       jpb.start();
@@ -62,11 +64,11 @@ public class JavaProcessBuilderTest {
       // Expected.
     }
 
-    jpb = new JavaProcessBuilder();
-    jpb.main( JavaProcessBuilderTest.class );
-    assertThat( jpb.getMainClassName(), is( JavaProcessBuilderTest.class.getName() ) );
+    jpb = new JavaProcessPreBuilder();
+    jpb.main( JavaProcessPreBuilderTest.class );
+    assertThat( jpb.getMainClassName(), is( JavaProcessPreBuilderTest.class.getName() ) );
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.main( "test-main" );
     assertThat( jpb.getMainClassName(), is( "test-main" ) );
     assertThat( jpb.getCmdArgs().get( 1 ), is( "test-main" ) );
@@ -74,13 +76,13 @@ public class JavaProcessBuilderTest {
 
   @Test
   public void testMainArgs() {
-    JavaProcessBuilder jpb;
+    JavaProcessPreBuilder jpb;
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.main( "test-main" );
     assertThat( jpb.getCmdArgs(), hasSize( 2 ) );
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.main( "test-main" );
     jpb.args( "test-arg1" );
     assertThat( jpb.getMainArgs(), hasSize( 1 ) );
@@ -88,7 +90,7 @@ public class JavaProcessBuilderTest {
     assertThat( jpb.getCmdArgs(), hasSize( 3 ) );
     assertThat( jpb.getCmdArgs().get( 2 ), is( "test-arg1" ) );
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.main( "test-main" );
     jpb.args( "test-arg1", "test-arg2" );
     assertThat( jpb.getMainArgs(), hasSize( 2 ) );
@@ -97,7 +99,7 @@ public class JavaProcessBuilderTest {
     assertThat( jpb.getCmdArgs().get( 2 ), is( "test-arg1" ) );
     assertThat( jpb.getCmdArgs().get( 3 ), is( "test-arg2" ) );
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.main( "test-main" );
     jpb.args( Arrays.asList( "test-arg1", "test-arg2" ) );
     assertThat( jpb.getMainArgs(), hasSize( 2 ) );
@@ -106,25 +108,25 @@ public class JavaProcessBuilderTest {
     assertThat( jpb.getCmdArgs().get( 2 ), is( "test-arg1" ) );
     assertThat( jpb.getCmdArgs().get( 3 ), is( "test-arg2" ) );
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.main( "test-main" );
     jpb.args();
     assertThat( jpb.getMainArgs(), hasSize( 0 ) );
     assertThat( jpb.getCmdArgs(), hasSize( 2 ) );
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.main( "test-main" );
     jpb.args( (List<String>)null );
     assertThat( jpb.getMainArgs(), hasSize( 0 ) );
     assertThat( jpb.getCmdArgs(), hasSize( 2 ) );
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.main( "test-main" );
     jpb.args( (String)null );
     assertThat( jpb.getMainArgs(), hasSize( 0 ) );
     assertThat( jpb.getCmdArgs(), hasSize( 2 ) );
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.main( "test-main" );
     assertThat( jpb.getMainArgs(), hasSize( 0 ) );
     jpb.args( Arrays.asList( (String)null ) );
@@ -133,25 +135,25 @@ public class JavaProcessBuilderTest {
 
   @Test
   public void testClassPath() {
-    JavaProcessBuilder jpb;
+    JavaProcessPreBuilder jpb;
 
     String sep = System.getProperty( "path.separator" );
     String cp;
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.jvm( "test-jvm" );
     jpb.main( "test-main" );
     jpb.classPath();
     assertThat( jpb.getClassPathArgs(), hasSize( 0 ) );
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.jvm( "test-jvm" );
     jpb.main( "test-main" );
     jpb.classPath( "test-jar" );
     assertThat( jpb.getClassPathArgs(), hasSize( 2 ) );
     assertThat( jpb.getClassPathArgs(), contains( "-cp", "test-jar" ) );
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.jvm( "test-jvm" );
     jpb.main( "test-main" );
     jpb.classPath( "test-jar1", "test-jar2" );
@@ -159,7 +161,7 @@ public class JavaProcessBuilderTest {
     assertThat( jpb.getCmdArgs(), hasSize( 4 ) );
     assertThat( jpb.getCmdArgs(), contains( "test-jvm", "-cp", cp, "test-main" ) );
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.jvm( "test-jvm" );
     jpb.main( "test-main" );
     jpb.classPath( Arrays.asList( "test-jar1", "test-jar2" ) );
@@ -168,7 +170,7 @@ public class JavaProcessBuilderTest {
     assertThat( jpb.getCmdArgs(), hasSize( 4 ) );
     assertThat( jpb.getCmdArgs(), contains( "test-jvm", "-cp", cp, "test-main" ) );
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.jvm( "test-jvm" );
     jpb.main( "test-main" );
     jpb.classPath( "test-jar1" );
@@ -178,7 +180,7 @@ public class JavaProcessBuilderTest {
     assertThat( jpb.getCmdArgs(), hasSize( 4 ) );
     assertThat( jpb.getCmdArgs(), contains( "test-jvm", "-cp", cp, "test-main"  ) );
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.jvm( "test-jvm" );
     jpb.main( "test-main" );
     jpb.inheritClassPath();
@@ -190,11 +192,11 @@ public class JavaProcessBuilderTest {
 
   @Test
   public void testDebug() {
-    JavaProcessBuilder jpb;
+    JavaProcessPreBuilder jpb;
 
     String s;
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.jvm( "test-jvm" );
     jpb.main( "test-main" );
     jpb.debug();
@@ -202,7 +204,7 @@ public class JavaProcessBuilderTest {
     assertThat( jpb.getDbgArgs(), contains( s ) );
     assertThat( jpb.getCmdArgs(), contains( "test-jvm", s, "test-main" ) );
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.jvm( "test-jvm" );
     jpb.main( "test-main" );
     jpb.debug( 42 );
@@ -210,7 +212,7 @@ public class JavaProcessBuilderTest {
     assertThat( jpb.getDbgArgs(), contains( s ) );
     assertThat( jpb.getCmdArgs(), contains( "test-jvm", s, "test-main" ) );
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.jvm( "test-jvm" );
     jpb.main( "test-main" );
     jpb.debug( 42, true );
@@ -221,14 +223,14 @@ public class JavaProcessBuilderTest {
 
   @Test
   public void testInheritIO() {
-    JavaProcessBuilder jpb;
+    JavaProcessPreBuilder jpb;
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.jvm( "test-jvm" );
     jpb.main( "test-main" );
     assertThat( jpb.getInheritIO(), is( false ) );
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.jvm( "test-jvm" );
     jpb.main( "test-main" );
     jpb.inheritIO();
@@ -237,21 +239,21 @@ public class JavaProcessBuilderTest {
 
   @Test
   public void testJvmArgs() {
-    JavaProcessBuilder jpb;
+    JavaProcessPreBuilder jpb;
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.jvm( "test-jvm" );
     jpb.main( "test-main" );
     assertThat( jpb.getJvmArgs(), hasSize( 0 ) );
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.jvm( "test-jvm" );
     jpb.main( "test-main" );
     jpb.opt( "test-opt" );
     assertThat( jpb.getJvmArgs(), hasSize( 1 ) );
     assertThat( jpb.getJvmArgs(), contains( "-test-opt" ) );
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.jvm( "test-jvm" );
     jpb.main( "test-main" );
     jpb.opt( "test-opt-name", "test-opt-value" );
@@ -261,21 +263,21 @@ public class JavaProcessBuilderTest {
 
   @Test
   public void testExtArgs() {
-    JavaProcessBuilder jpb;
+    JavaProcessPreBuilder jpb;
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.jvm( "test-jvm" );
     jpb.main( "test-main" );
     assertThat( jpb.getJvmArgs(), hasSize( 0 ) );
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.jvm( "test-jvm" );
     jpb.main( "test-main" );
     jpb.xarg( "test-xarg" );
     assertThat( jpb.getExtArgs(), hasSize( 1 ) );
     assertThat( jpb.getExtArgs(), contains( "-Xtest-xarg" ) );
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.jvm( "test-jvm" );
     jpb.main( "test-main" );
     jpb.xarg( "test-xarg-name", "test-xarg-value" );
@@ -285,21 +287,21 @@ public class JavaProcessBuilderTest {
 
   @Test
   public void testSysProps() {
-    JavaProcessBuilder jpb;
+    JavaProcessPreBuilder jpb;
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.jvm( "test-jvm" );
     jpb.main( "test-main" );
     assertThat( jpb.getPropArgs(), hasSize( 0 ) );
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.jvm( "test-jvm" );
     jpb.main( "test-main" );
     jpb.prop( "test-prop" );
     assertThat( jpb.getPropArgs(), hasSize( 1 ) );
     assertThat( jpb.getPropArgs(), contains( "-Dtest-prop" ) );
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.jvm( "test-jvm" );
     jpb.main( "test-main" );
     jpb.prop( "test-prop-name", "test-prop-value" );
@@ -309,9 +311,9 @@ public class JavaProcessBuilderTest {
 
   @Test
   public void testEverything() {
-    JavaProcessBuilder jpb;
+    JavaProcessPreBuilder jpb;
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.jvm( "test-jvm" );
     jpb.main( "test-main" );
     jpb.classPath( "test-jar" );
@@ -324,12 +326,12 @@ public class JavaProcessBuilderTest {
 
   @Test
   public void testBuild() {
-    JavaProcessBuilder jpb;
+    JavaProcessPreBuilder jpb;
 
-    jpb = new JavaProcessBuilder();
+    jpb = new JavaProcessPreBuilder();
     jpb.jvm( "test-jvm" );
     jpb.main( "test-main" );
-    assertThat( jpb.build(), notNullValue() );
+    assertThat( jpb.prepare(), notNullValue() );
   }
 
 }
