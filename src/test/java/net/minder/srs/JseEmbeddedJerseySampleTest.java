@@ -15,11 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.minder.poc;
+package net.minder.srs;
 
 import com.jayway.restassured.RestAssured;
-import net.minder.poc.util.JavaProcessPreBuilder;
-import net.minder.poc.util.PortUtils;
+import net.minder.util.JavaProcessPreBuilder;
+import net.minder.util.PortUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;

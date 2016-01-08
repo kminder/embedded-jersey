@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.minder.poc.util;
+package net.minder.util;
 
 import java.io.IOException;
 import java.net.ServerSocket;
